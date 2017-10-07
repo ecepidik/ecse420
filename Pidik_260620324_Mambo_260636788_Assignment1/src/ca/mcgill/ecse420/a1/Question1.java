@@ -2,6 +2,30 @@ package ca.mcgill.ecse420.a1;
 
 public class Question1 {
 	
+	public static void main(String[] args) {
+		
+		double[][] a = generateMatrix(2000, 2000);
+		double[][] b = generateMatrix(2000, 2000);
+		
+		long startSequentialMultiply = System.nanoTime()/1000000;
+		double[][] c = sequentialMultiplyMatrix(a, b);
+		long endSequentialMultiply = System.nanoTime()/1000000;
+         
+		long durationSequentialMultiply = endSequentialMultiply - startSequentialMultiply;
+		
+//		System.out.println("\nPrinting matrix a:");
+//		printMatrix(a);
+
+//		System.out.println("\nPrinting matrix b:");
+//		printMatrix(b);
+		
+//		System.out.println("\nPrinting matrix c:");
+//		printMatrix(c);
+		
+		System.out.println("Sequential Matrix Multiply: " + durationSequentialMultiply + "ms");
+		
+	}
+	
 	public static double[][] sequentialMultiplyMatrix(double a[][], double b[][]) {
 		
 		double[][] c = new double[a.length][b[0].length];
@@ -33,6 +57,26 @@ public class Question1 {
 		}	
 		return c;
 		
+	}
+	
+	public static double[][] generateMatrix(int rowSize, int columnSize) {
+		double[][] matrix = new double[rowSize][columnSize];
+		
+		for (int i=0; i<rowSize; i++) {
+		    for (int j=0; j<columnSize; j++) {
+		        matrix[i][j] = (int) (Math.random()*10);
+		    }           
+		}
+		return matrix;
+	}
+	
+	public static void printMatrix(double[][] matrix) {
+		for (int i=0; i<matrix.length; i++) {
+			for (int j=0; j<matrix[0].length; j++) {
+				System.out.print(matrix[i][j] + "  ");
+			}
+			System.out.println();
+		}
 	}
 
 }
