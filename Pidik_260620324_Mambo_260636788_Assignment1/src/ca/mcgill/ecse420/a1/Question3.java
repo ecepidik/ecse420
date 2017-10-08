@@ -4,100 +4,71 @@ import java.util.concurrent.*;
 
 public class Question3 {
 
-
+	public static int PHILOSOPHER_NUMBER = 5;
+	
 	public static void main(String[] args){
-
-		Thread p1 = new Thread(new Philosopher(0));
-		Thread p2 = new Thread(new Philosopher(1));
-		Thread p3 = new Thread(new Philosopher(2));
-		Thread p4 = new Thread(new Philosopher(3));
-		Thread p5 = new Thread(new Philosopher(4));
 		
-		p1.start();
-		p2.start();
-		p3.start();
-		p4.start();
-		p5.start();
-
+		Semaphore[] chopSticks = new Semaphore[PHILOSOPHER_NUMBER];
+		for(int i = 0; i < PHILOSOPHER_NUMBER; i++) {
+	        chopSticks[i] = new Semaphore(1);
+	    }; 
+	 		
+		for(int i=0; i<PHILOSOPHER_NUMBER; i++) {
+			(new Thread(new Philosopher(i, chopSticks[i], chopSticks[(i+1)%PHILOSOPHER_NUMBER]))).start();
+		}
 	}
-
 
 	private static class Philosopher implements Runnable {
 
-		private int PHILOSOPHER_NUMBER = 5;
-		private int PHILOSOPHER_ID;
-
-		private enum State {THINKING, EATING, WAITING};
-		private State[] states = new State[PHILOSOPHER_NUMBER];
-
-		private Semaphore mutex = new Semaphore(1);
-		private Semaphore[] s = new Semaphore[] {new Semaphore(1),
-			     new Semaphore(1), new Semaphore(1), new Semaphore(1), new Semaphore(1)};
-
-		Philosopher(int i) {
-			this.PHILOSOPHER_ID = i;
+		private int PHILOSOPHER_ID;		
+		private Semaphore LEFT_CHOPSTICK;
+		private Semaphore RIGHT_CHOPSTICK;
+		
+		Philosopher(int id, Semaphore leftChopstick, Semaphore rightChopstick) {
+			this.PHILOSOPHER_ID = id;
+			this.LEFT_CHOPSTICK = leftChopstick;
+			this.RIGHT_CHOPSTICK = rightChopstick;
 		}
 
 		@Override
 		public void run() {
 			while(true) {
-				try {
-					think();
-					System.out.println("Philosopher " + PHILOSOPHER_ID + " THINKING");
-					takeFork(PHILOSOPHER_ID);
-					eat();
-					System.out.println("Philosopher " + PHILOSOPHER_ID + " EATING");
-					putFork(PHILOSOPHER_ID);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					try {
+						think(PHILOSOPHER_ID);
+					} catch (InterruptedException e1) {}
+					try {
+						takeChopstick(PHILOSOPHER_ID);
+					} catch (InterruptedException e) {}
 			}
 		}
 
-		public void takeFork(int i) {
-			try {
-				mutex.acquire();
-				states[i] = State.WAITING;
-				System.out.println("Philosopher " + PHILOSOPHER_ID + " WAITING");
-				test(i);
-				mutex.release();
-				s[i].acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		public void takeChopstick(int i) throws InterruptedException {
+			System.out.println("Philosopher " + (PHILOSOPHER_ID) + " trying to acquire chopstick");
+			if(LEFT_CHOPSTICK.tryAcquire()) {
+				if(RIGHT_CHOPSTICK.tryAcquire()) {
+					System.out.println("Philosopher " + (PHILOSOPHER_ID) + " acquired chopstick");
+					eat(PHILOSOPHER_ID);
+					LEFT_CHOPSTICK.release();
+					RIGHT_CHOPSTICK.release();
+				} else {
+					System.out.println("Philosopher " + (PHILOSOPHER_ID) + " couldn't acquire RIGHT chopstick");
+					LEFT_CHOPSTICK.release();				}
+			} else {
+				System.out.println("Philosopher " + PHILOSOPHER_ID +" couldn't acquire LEFT chopstick");
 			}
 		}
-
-		public void putFork(int i) {
-			try {
-				mutex.acquire();
-				states[i] = State.THINKING;
-				test((i+PHILOSOPHER_NUMBER-1)%PHILOSOPHER_NUMBER);
-				test((i+1)%PHILOSOPHER_NUMBER);
-				mutex.release();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		
+		public static void think(int i) throws InterruptedException {
+			System.out.println("Philosopher " + (i) + " THINKING");
+			Thread.sleep(((int) Math.random() * 10000) + 5000);
+			System.out.println("Philosopher " + (i) + " finished thinking");
 
 		}
 
-		public static void think() throws InterruptedException {
-			Thread.sleep(((int) Math.random() * 10000) + 1000);
-		}
-
-		public static void eat() throws InterruptedException {
-			Thread.sleep(((int) Math.random() * 10000) + 1000);
-		}
-
-		public void test(int i) {
-			int leftPhilosopher = (i+PHILOSOPHER_NUMBER-1)%PHILOSOPHER_NUMBER;
-			int rightPhilosopher = (i+1)%PHILOSOPHER_NUMBER;
-			if(states[i] == State.WAITING 
-					&& states[leftPhilosopher] != State.EATING
-					&& states[rightPhilosopher] != State.EATING) {
-				states[i] = State.EATING;
-				s[i].release();
-			}
+		public static void eat(int i) throws InterruptedException {
+			System.out.println("Philosopher " + (i) + " EATING");
+			Thread.sleep(((int) Math.random() * 10000) + 5000);
+			System.out.println("Philosopher " + (i) + " finished EATING and putdown chopsticks");
 		}
 	}
 }
