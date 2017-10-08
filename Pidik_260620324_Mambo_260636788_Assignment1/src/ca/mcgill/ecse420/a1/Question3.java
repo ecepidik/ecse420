@@ -7,11 +7,11 @@ public class Question3 {
 
 	public static void main(String[] args){
 
-		Thread p1 = new Thread(new Philosopher(1));
-		Thread p2 = new Thread(new Philosopher(2));
-		Thread p3 = new Thread(new Philosopher(3));
-		Thread p4 = new Thread(new Philosopher(4));
-		Thread p5 = new Thread(new Philosopher(5));
+		Thread p1 = new Thread(new Philosopher(0));
+		Thread p2 = new Thread(new Philosopher(1));
+		Thread p3 = new Thread(new Philosopher(2));
+		Thread p4 = new Thread(new Philosopher(3));
+		Thread p5 = new Thread(new Philosopher(4));
 		
 		p1.start();
 		p2.start();
@@ -43,10 +43,10 @@ public class Question3 {
 			while(true) {
 				try {
 					think();
-					System.out.println("Philospher " + PHILOSOPHER_ID + " thinking");
+					System.out.println("Philosopher " + PHILOSOPHER_ID + " THINKING");
 					takeFork(PHILOSOPHER_ID);
 					eat();
-					System.out.println("Philospher " + PHILOSOPHER_ID + " eating");
+					System.out.println("Philosopher " + PHILOSOPHER_ID + " EATING");
 					putFork(PHILOSOPHER_ID);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -59,6 +59,7 @@ public class Question3 {
 			try {
 				mutex.acquire();
 				states[i] = State.WAITING;
+				System.out.println("Philosopher " + PHILOSOPHER_ID + " WAITING");
 				test(i);
 				mutex.release();
 				s[i].acquire();
@@ -81,11 +82,11 @@ public class Question3 {
 		}
 
 		public static void think() throws InterruptedException {
-			Thread.sleep(((int) Math.random() * 10) + 10);
+			Thread.sleep(((int) Math.random() * 10000) + 1000);
 		}
 
 		public static void eat() throws InterruptedException {
-			Thread.sleep(((int) Math.random() * 10) + 10);
+			Thread.sleep(((int) Math.random() * 10000) + 1000);
 		}
 
 		public void test(int i) {
