@@ -31,7 +31,8 @@ public class Question3 {
 		private State[] states = new State[PHILOSOPHER_NUMBER];
 
 		private Semaphore mutex = new Semaphore(1);
-		private Semaphore[] s = new Semaphore[PHILOSOPHER_NUMBER];
+		private Semaphore[] s = new Semaphore[] {new Semaphore(1),
+			     new Semaphore(1), new Semaphore(1), new Semaphore(1), new Semaphore(1)};
 
 		Philosopher(int i) {
 			this.PHILOSOPHER_ID = i;
