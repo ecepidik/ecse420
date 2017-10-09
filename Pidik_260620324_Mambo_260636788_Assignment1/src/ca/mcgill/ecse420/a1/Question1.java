@@ -23,21 +23,21 @@ public class Question1 {
 		System.out.println("Sequential Matrix Multiply: " + durationSequentialMultiply + "ms");
 		System.out.println("Parallel Matrix Multiply: " + durationParallelMultiply + "ms");
 		
-		//		System.out.println("\nPrinting matrix a:");
-		//		printMatrix(a);
+//				System.out.println("\nPrinting matrix a:");
+//				printMatrix(a);
 
-		//		System.out.println("\nPrinting matrix b:");
-		//		printMatrix(b);
+//				System.out.println("\nPrinting matrix b:");
+//				printMatrix(b);
 
-		//		System.out.println("\nPrinting matrix c:");
-		//		printMatrix(c);
-		
-		//		System.out.println("\nPrinting matrix d:");
-		//		printMatrix(d);
+//				System.out.println("\nPrinting matrix c:");
+//				printMatrix(c);
+	
+//				System.out.println("\nPrinting matrix d:");
+//				printMatrix(d);
 		
 	}
 
-	public static double[][] sequentialMultiplyMatrix(double a[][], double b[][]) {
+	public static double[][] sequentialMultiplyMatrix(double[][] a, double[][] b) {
 
 		double[][] c = new double[a.length][b[0].length];
 
@@ -60,9 +60,9 @@ public class Question1 {
 		 * 	c[2][1] = a[2][0]*b[0][1] + a[2][1]*b[1][1] + a[2][2]*b[2][1]
 		 *
 		 */
-		for(int i=0; i<a.length; i++) {
-			for(int j=0; j<b[0].length; j++) {
-				for(int k=0; k<a[0].length; k++) {
+		for(int i=0; i < a.length; i++) {
+			for(int j=0; j < b[0].length; j++) {
+				for(int k=0; k < a[0].length; k++) {
 					c[i][j] += a[i][k]*b[k][j];
 				}	
 			}	
