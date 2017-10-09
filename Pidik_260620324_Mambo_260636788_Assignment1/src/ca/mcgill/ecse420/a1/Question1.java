@@ -2,38 +2,20 @@ package ca.mcgill.ecse420.a1;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.Arrays;
 
 public class Question1 {
+	
+	public static int THREAD_AMOUNT = 1;
+	public static int ROW_AMOUNT_PER_THREAD;
 
 	public static void main(String[] args) {
 
 		double[][] a = generateMatrix(2000, 2000);
 		double[][] b = generateMatrix(2000, 2000);
 
-		long startSequentialMultiply = System.nanoTime()/1000000;
-		double[][] c = sequentialMultiplyMatrix(a, b);
-		long endSequentialMultiply = System.nanoTime()/1000000;
-		long durationSequentialMultiply = endSequentialMultiply - startSequentialMultiply;
-		
-		long startParallelMultiply = System.nanoTime()/1000000;
-		double[][] d = parallelMultiplyMatrix(a, b);
-		long endParallelMultiply = System.nanoTime()/1000000;
-		long durationParallelMultiply = endParallelMultiply - startParallelMultiply;
-
-		System.out.println("Sequential Matrix Multiply: " + durationSequentialMultiply + "ms");
-		System.out.println("Parallel Matrix Multiply: " + durationParallelMultiply + "ms");
-		
-//				System.out.println("\nPrinting matrix a:");
-//				printMatrix(a);
-
-//				System.out.println("\nPrinting matrix b:");
-//				printMatrix(b);
-
-//				System.out.println("\nPrinting matrix c:");
-//				printMatrix(c);
-	
-//				System.out.println("\nPrinting matrix d:");
-//				printMatrix(d);
+	//	double[][] c = sequentialMultiplyMatrix(a, b);
+	//	double[][] d = parallelMultiplyMatrix(a, b);
 		
 	}
 
@@ -60,6 +42,8 @@ public class Question1 {
 		 * 	c[2][1] = a[2][0]*b[0][1] + a[2][1]*b[1][1] + a[2][2]*b[2][1]
 		 *
 		 */
+		
+		long startSequentialMultiply = System.nanoTime()/1000000;
 		for(int i=0; i < a.length; i++) {
 			for(int j=0; j < b[0].length; j++) {
 				for(int k=0; k < a[0].length; k++) {
@@ -67,18 +51,35 @@ public class Question1 {
 				}	
 			}	
 		}	
+		
+		long endSequentialMultiply = System.nanoTime()/1000000;
+		long durationSequentialMultiply = endSequentialMultiply - startSequentialMultiply;
+		System.out.println("Sequential Matrix Multiply: " + durationSequentialMultiply + "ms");
+
 		return c;
 	}
 
 	public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
 		double[][] c = new double[a.length][b[0].length];
+		
+		ROW_AMOUNT_PER_THREAD = a.length/THREAD_AMOUNT;
+		
+		long startParallelMultiply = System.nanoTime()/1000000;
+		
+		ExecutorService executor = Executors.newFixedThreadPool(THREAD_AMOUNT);
 
-		ExecutorService executorService = Executors.newFixedThreadPool(a.length);
-
-		for (int rowCIndex = 0; rowCIndex < a.length; rowCIndex++) {
-			executorService.execute(new ParallelMultiplyMatrix(a, b, c, rowCIndex));
+		for (int rowCIndex = 0; rowCIndex < a.length;) {
+			executor.execute(new ParallelMultiplyMatrix(a, b, c, rowCIndex));
+			rowCIndex += ROW_AMOUNT_PER_THREAD;
 		}
-		executorService.shutdown();
+		executor.shutdown();
+		
+		while(!executor.isTerminated()) {}
+		
+		long endParallelMultiply = System.nanoTime()/1000000;
+		long durationParallelMultiply = endParallelMultiply - startParallelMultiply;
+		System.out.println("Parallel Matrix Multiply: " + durationParallelMultiply + "ms");
+		
 		return c;
 	}
 
@@ -102,6 +103,13 @@ public class Question1 {
 		}
 	}
 
+	public static boolean compareMatrices(double[][] a, double[][] b) {
+		if (Arrays.deepEquals(a, b)){
+			return true;
+		}
+		return false;
+	}
+	
 	public static class ParallelMultiplyMatrix implements Runnable {
 
 		private double[][] a;
@@ -119,9 +127,11 @@ public class Question1 {
 
 		@Override
 		public void run() {
-			for (int i = 0; i < b[0].length; i++) {
-				for (int j = 0; j < a[0].length; j++) {
-					c[rowCIndex][i] += a[rowCIndex][j] * b[j][i];
+			for (int k = rowCIndex; k < (rowCIndex + ROW_AMOUNT_PER_THREAD) && k < a.length; k++) {
+				for (int i = 0; i < b[0].length; i++) {
+					for (int j = 0; j < a[0].length; j++) {
+						c[k][i] += a[k][j] * b[j][i];
+					}
 				}
 			}
 		}
