@@ -6,45 +6,32 @@ import java.util.Arrays;
 
 public class Question1 {
 	
-	public static int THREAD_AMOUNT = 1;
+	// Change the thread amount by changing the value
+	public static int THREAD_AMOUNT = 16;
+	
 	public static int ROW_AMOUNT_PER_THREAD;
 
 	public static void main(String[] args) {
 
-		double[][] a = generateMatrix(2000, 2000);
-		double[][] b = generateMatrix(2000, 2000);
+		// Change the sizes of the matrices that are being multiplied
+		double[][] a = generateMatrix(500, 500);
+		double[][] b = generateMatrix(500, 500);
 
-	//	double[][] c = sequentialMultiplyMatrix(a, b);
-	//	double[][] d = parallelMultiplyMatrix(a, b);
+		double[][] c = sequentialMultiplyMatrix(a, b);
+		double[][] d = parallelMultiplyMatrix(a, b);
 		
 	}
 
 	public static double[][] sequentialMultiplyMatrix(double[][] a, double[][] b) {
 
+		// initializes a matrix n x m where n = row number of a & m = column number of b
 		double[][] c = new double[a.length][b[0].length];
-
-		/* 
-		 *     A            B           C
-		 * | 1 2 3 |     | 5 6 |    | 11 24 |
-		 * | 4 5 6 |  x  | 1 3 | =  | 37 63 |
-		 * | 7 8 9 |     | 2 4 |    | 61 102|
-		 * 
-		 * when i = 0;
-		 * 	c[0][0] = a[0][0]*b[0][0] + a[0][1]*b[1][0] + a[0][2]*b[2][0]
-		 * 	c[0][1] = a[0][0]*b[0][1] + a[0][1]*b[1][1] + a[0][2]*b[2][1]
-		 * 
-		 * when i = 1;
-		 * 	c[1][0] = a[1][0]*b[0][0] + a[1][1]*b[1][0] + a[1][2]*b[2][0]
-		 * 	c[1][1] = a[1][0]*b[0][1] + a[1][1]*b[1][1] + a[1][2]*b[2][1]
-		 *
-		 * when i = 2;
-		 * 	c[2][0] = a[2][0]*b[0][0] + a[2][1]*b[1][0] + a[2][2]*b[2][0]
-		 * 	c[2][1] = a[2][0]*b[0][1] + a[2][1]*b[1][1] + a[2][2]*b[2][1]
-		 *
-		 */
 		
+		// starts the timer
 		long startSequentialMultiply = System.nanoTime()/1000000;
-		for(int i=0; i < a.length; i++) {
+		
+		// Iterative process to calculate the sequential matrix multiplication
+		for(int i=0; i < c.length; i++) {
 			for(int j=0; j < b[0].length; j++) {
 				for(int k=0; k < a[0].length; k++) {
 					c[i][j] += a[i][k]*b[k][j];
@@ -52,6 +39,7 @@ public class Question1 {
 			}	
 		}	
 		
+		// stops the timer
 		long endSequentialMultiply = System.nanoTime()/1000000;
 		long durationSequentialMultiply = endSequentialMultiply - startSequentialMultiply;
 		System.out.println("Sequential Matrix Multiply: " + durationSequentialMultiply + "ms");
@@ -62,23 +50,31 @@ public class Question1 {
 	public static double[][] parallelMultiplyMatrix(double[][] a, double[][] b) {
 		double[][] c = new double[a.length][b[0].length];
 		
-		ROW_AMOUNT_PER_THREAD = a.length/THREAD_AMOUNT;
+		// Divides the rows for the resulting matrix c by the amount of threads used 
+		// This is the ROW_AMOUNT_PER_THREAD number 
+		// Each thread deals with ROW_AMOUNT_PER_THREAD many rows instead 
+		ROW_AMOUNT_PER_THREAD = (int) Math.ceil((double) a.length/THREAD_AMOUNT);
 		
+		//starts the timer
 		long startParallelMultiply = System.nanoTime()/1000000;
 		
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_AMOUNT);
 
-		for (int rowCIndex = 0; rowCIndex < a.length;) {
+		// creates and runs the threads in the executor service
+		for (int rowCIndex = 0; rowCIndex < c.length;) {
 			executor.execute(new ParallelMultiplyMatrix(a, b, c, rowCIndex));
 			rowCIndex += ROW_AMOUNT_PER_THREAD;
 		}
+		
 		executor.shutdown();
 		
+		// required for timing purposes
 		while(!executor.isTerminated()) {}
 		
+		// stops the timer
 		long endParallelMultiply = System.nanoTime()/1000000;
 		long durationParallelMultiply = endParallelMultiply - startParallelMultiply;
-		System.out.println("Parallel Matrix Multiply: " + durationParallelMultiply + "ms");
+		System.out.println("Parallel Matrix Multiply using " + THREAD_AMOUNT + " threads: "  + durationParallelMultiply + "ms");
 		
 		return c;
 	}
@@ -93,22 +89,6 @@ public class Question1 {
 		}
 		return matrix;
 	}
-
-	public static void printMatrix(double[][] matrix) {
-		for (int i=0; i<matrix.length; i++) {
-			for (int j=0; j<matrix[0].length; j++) {
-				System.out.print(matrix[i][j] + "  ");
-			}
-			System.out.println();
-		}
-	}
-
-	public static boolean compareMatrices(double[][] a, double[][] b) {
-		if (Arrays.deepEquals(a, b)){
-			return true;
-		}
-		return false;
-	}
 	
 	public static class ParallelMultiplyMatrix implements Runnable {
 
@@ -116,6 +96,10 @@ public class Question1 {
 		private double[][] b;
 		private double[][] c;
 
+		// rowCIndex is the index of the first row in the result matrix c that is computed by the thread
+		// e.g. Computing a 100 X 100 matrix with 4 threads:
+		// ROW_AMOUNT_PER_THREAD = 25
+		// thread 1 computes rows 0-24 (rowCIndex = 0), thread 2 computes rows 25-49 (rowCIndex = 25), so on
 		private int rowCIndex;
 
 		ParallelMultiplyMatrix(double[][] a, double[][] b, double[][] c, int rowCIndex) {
@@ -127,7 +111,9 @@ public class Question1 {
 
 		@Override
 		public void run() {
-			for (int k = rowCIndex; k < (rowCIndex + ROW_AMOUNT_PER_THREAD) && k < a.length; k++) {
+			// Same logic as sequential number
+			// Only difference is the first for loop is a lot smaller
+			for (int k = rowCIndex; k < (rowCIndex + ROW_AMOUNT_PER_THREAD) && k < c.length; k++) {
 				for (int i = 0; i < b[0].length; i++) {
 					for (int j = 0; j < a[0].length; j++) {
 						c[k][i] += a[k][j] * b[j][i];
