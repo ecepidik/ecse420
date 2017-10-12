@@ -19,17 +19,16 @@ public class Question3 {
 
 		// creates and runs the threads for the deadlock free and starvation free solution to the Dining Philosophers Problem
 		// uncomment/comment the following lines to run/block the Philosopher threads 
-		for(int i=0; i<PHILOSOPHER_NUMBER; i++) {
-			(new Thread(new Philosopher(i, chopSticks[i], chopSticks[(i+1)%PHILOSOPHER_NUMBER]))).start();
-		}
+//		for(int i=0; i<PHILOSOPHER_NUMBER; i++) {
+//			(new Thread(new Philosopher(i, chopSticks[i], chopSticks[(i+1)%PHILOSOPHER_NUMBER]))).start();
+//		}
 		
 		// creates and runs the threads for the solution with deadlock and starvation to the Dining Philosophers Problem
 		// uncomment/comment the following lines to run/block the GreedyPhilosopher threads 
-		/*
 		for(int i=0; i<PHILOSOPHER_NUMBER; i++) {
 			(new Thread(new GreedyPhilosopher(i, chopSticks[i], chopSticks[(i+1)%PHILOSOPHER_NUMBER]))).start();
 		} 
- 		*/
+ 		
 	}
 
 	// This class is the correct implementation solution to the Dining Philosophers Problem with N Philosophers
@@ -66,7 +65,7 @@ public class Question3 {
 			if(LEFT_CHOPSTICK.tryAcquire()) {
 				// Tries to acquire the second semaphore (chopstick)
 				if(RIGHT_CHOPSTICK.tryAcquire()) {
-					System.out.println("Philosopher " + (PHILOSOPHER_ID + 1) + " acquired chopstick");
+					System.out.println("Philosopher " + (PHILOSOPHER_ID + 1) + " acquired chopsticks");
 					// If both chopsticks can be acquired the philosopher 'eats' (thread sleeps for random time)
 					eat(PHILOSOPHER_ID);
 					// Both semaphores are released (their number values are increased) and can be acquired by another thread now
@@ -133,7 +132,7 @@ public class Question3 {
 			System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID + 1) + " trying to acquire chopstick");
 			if(LEFT_CHOPSTICK.tryAcquire()) {
 				if(RIGHT_CHOPSTICK.tryAcquire()) {
-					System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID + 1) + " acquired chopstick");
+					System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID + 1) + " acquired chopsticks");
 					// If both chopsticks can be acquired the philosopher 'eats' (thread sleeps for random time)
 					eat(PHILOSOPHER_ID);
 					// Both semaphores are released (their number values are increased) and can be acquired by another thread now
@@ -145,10 +144,10 @@ public class Question3 {
 					 * until it acquires both of them and eats, eventually each philosopher will be holding
 					 * one chopstick requested by the philosopher sitting next to them
 					 */
-					System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID + 1) + " couldn't acquire RIGHT chopstick but will keep on holding LEFT chostick");
+					System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID + 1) + " couldn't acquire RIGHT chopstick but will keep on holding LEFT chopstick");
 				}
 			} else {
-				System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID +1) +" couldn't acquire LEFT chopstick");
+				System.out.println("Greedy Philosopher " + (PHILOSOPHER_ID +1) +" couldn't acquire chopsticks");
 			}
 		}
 
