@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Lock;
 public class Question1{
 	
 	public static int threadCount = 5;
-	public static int maxCount = 50;
+	public static int maxCount = 5;
 		
 		
 	public static void main (String args []){
@@ -24,28 +24,27 @@ public class Question1{
 			System.out.println("Error for BakeryTest");
 		}
 		
-		//Run lock test Peterson
-		try{
-			FilterLockRuntime = lockTest(Peterson,threadCount);
-			
-		}catch(InterruptedException e){
-			System.out.println("Error for FilterTest");
-		}
+//		//Run lock test Peterson
+//		try{
+//			FilterLockRuntime = lockTest(Peterson,threadCount);
+//			
+//		}catch(InterruptedException e){
+//			System.out.println("Error for FilterTest");
+//		}
 		
 		System.out.println("BakeryTest Runtime:" + BakeryRuntime);
-		System.out.println("FilterLockTest Runtime:" + FilterLockRuntime);
+//		System.out.println("FilterLockTest Runtime:" + FilterLockRuntime);
 		
 	}
 	
 	private static long lockTest(Counter counter, int threadCount) throws InterruptedException{
-		//ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+	
 		long startTime = System.nanoTime()/1000000;
 		
 		Thread[] counters = new Thread[threadCount];
 		for(int i = 0; i < threadCount; i++) {
 			counters[i] = new Thread(counter);
 			counters[i].setName(Integer.toString(i));
-			System.out.println(Integer.toString(i));
 		}
 		
 		for(Thread t : counters){
@@ -65,42 +64,33 @@ public class Question1{
 
 	//create simple counter
 	private static class Counter implements Runnable {
-		private int initValue;
 		private int maxValue;
 		private Lock lock;
 		private int threadCount;
 		private int result = 0;
 		
-		public Counter(int max, String locktype, int threadCount){
-			this.initValue = 0;
+		public Counter(int max, String lockName, int threadCount){
 			this.maxValue = max;
 			this.threadCount = threadCount;
-			switch (locktype){
+			switch (lockName){
 			case "Bakery":
-				lock = new Bakery (threadCount);
+				lock = new Bakery (this.threadCount);
 				break;
-			case "FilteLock":
-				lock = new FilterLock (threadCount);
+			case "FilterLock":
+				lock = new FilterLock (this.threadCount);
 				break;
 			}
 			
 		}
 		
 		public int increment() {
-			int temp;
 			lock.lock();
 			try{
-				if(result >= maxValue){
-					return result;
-				}
-				else{
-					temp = result;
-					result = temp + 1;
-				}
+				result++;
 			}finally{
 				lock.unlock();
 			}
-			return temp;
+			return result;
 		}
 
 		@Override
