@@ -1,6 +1,5 @@
 package ca.mcgill.ecse420.a3;
 
-
 public class Question2 {
 	
 	public static int threadCount = 10;
@@ -47,12 +46,14 @@ public class Question2 {
 			private FineGrainedList<Integer> list;
 			private int threadCount;
 			
+			
 			public Tester(FineGrainedList<Integer> list, int threadCount){
 				this.threadCount = threadCount;
 				this.list = list;
+				
 			}
 			
-			public boolean checkCorrectness() {
+			public boolean add() {
 				//get Thread Name and convert to Integer
 				Integer item = Integer.parseInt(Thread.currentThread().getName());
 				
@@ -62,18 +63,29 @@ public class Question2 {
 					System.out.println("Successfully added: " + item + " by Thread: " + item);
 				}
 				else {
-					System.out.println("List still contains item or item was never in List");
+					System.out.println("Item was not added to List");
 				}
-				
+				return added;
+			}
+			
+			public boolean check() {
+				//get Thread Name and convert to Integer
+				Integer item = Integer.parseInt(Thread.currentThread().getName());
 				//check if item is now contained in FineGrainedList
-				boolean contains = list.contains(item);
+				Integer checkItem = ((item+1)%threadCount);
+				boolean contains = list.contains(checkItem);
 				if(contains) {
-					System.out.println("List contains item: " + item);
+					System.out.println("List contains item: " + checkItem + " by Thread " + item);
 				}
 				else {
-					System.out.println("List does not contain item");
+					System.out.println("List does not contain item " + checkItem + " by Thread " + item);
 				}
+				return contains;
+			}
 			
+			public boolean remove() {
+				//get Thread Name and convert to Integer
+				Integer item = Integer.parseInt(Thread.currentThread().getName());
 				//remove item from FineGrainedList
 				boolean removed = list.remove(item);
 				if(removed) {
@@ -83,14 +95,15 @@ public class Question2 {
 					System.out.println("List still contains item or item was never in List");
 				}
 					
-				return contains;
+				return removed;
 			}
 
 			@Override
 			public void run() {
-				
-				//run correctness check function
-				checkCorrectness();
+				//run correctness check functions
+				add();
+				check();
+				remove();
 			}
 			
 		}

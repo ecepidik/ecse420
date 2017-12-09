@@ -2,9 +2,9 @@ package ca.mcgill.ecse420.a3;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-
 /*
- * The Add and Remove methods are adapted from the methods given in the Textbook Chapter 9
+ * The Node Class, Add and Remove methods are adapted from the pseudocode given in the Textbook in Chapter 9.
+ * 
  */
 
 public class FineGrainedList<T> {
