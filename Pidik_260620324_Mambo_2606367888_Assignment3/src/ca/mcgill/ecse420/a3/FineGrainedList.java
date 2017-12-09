@@ -3,6 +3,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 
+/*
+ * The Add and Remove methods are adapted from the methods given in the Textbook Chapter 9
+ */
+
 public class FineGrainedList<T> {
 	
 	private Node<Integer> head;
@@ -30,7 +34,6 @@ public class FineGrainedList<T> {
 				if (curr.key == key) {
 					return false;
 				}
-				//when testing check type of item
 				Node<T> newNode = new Node(item);
 				newNode.next = curr;
 				pred.next = newNode;
