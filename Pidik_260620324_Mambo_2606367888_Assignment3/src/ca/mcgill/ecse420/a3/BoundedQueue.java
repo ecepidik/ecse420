@@ -35,17 +35,17 @@ public class BoundedQueue {
 			 enqLock.lock();
 			try {
 				while (size.get() == capacity)
-					notFullCondition.await();
-					//put item at enqueue Index
-					Q[enqIndex]= a;
-					//increment index
-					enqIndex++;
-					//reset index if reached cap
-					if(enqIndex == capacity) {
-						enqIndex = 0;
-					}
-					if (size.getAndIncrement() == 0)
-						mustWakeDequeuers = true;
+						notFullCondition.await();
+				//put item at enqueue Index
+				Q[enqIndex]= a;
+				//increment index
+				enqIndex++;
+				//reset index if reached cap
+				if(enqIndex == capacity) {
+					enqIndex = 0;
+				}
+				if (size.getAndIncrement() == 0)
+					mustWakeDequeuers = true;
 			} finally {
 				enqLock.unlock();
 			}
@@ -66,17 +66,17 @@ public class BoundedQueue {
 			try {
 				while (size.get() == 0)
 					notEmptyCondition.await();
-					//remove item from dequeue index
-					Q[deqIndex] = 0;
-					//increment dequeue index
-					deqIndex++;
-					//reset dequeue index if cap reached
-					if(deqIndex == capacity) {
-						deqIndex = 0;
-					}
-					if (size.getAndIncrement() == capacity) {
-						mustWakeEnqueuers = true;
-					}
+				//remove item from dequeue index
+				Q[deqIndex] = 0;
+				//increment dequeue index
+				deqIndex++;
+				//reset dequeue index if cap reached
+				if(deqIndex == capacity) {
+					deqIndex = 0;
+				}
+				if (size.getAndIncrement() == capacity) {
+					mustWakeEnqueuers = true;
+				}
 			} finally {
 				deqLock.unlock();
 			}
